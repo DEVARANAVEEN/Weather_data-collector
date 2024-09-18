@@ -1,1 +1,1 @@
-In this project we are collecting the temperature data from an open source weather site and using xpath to collect the temperature and saving it in csv file. Also, we are using scheduler to run the code everyday at a specific time to collect the data and save it in a csv file.
+In this project we are collecting the temperature data from an open source weather site and using xpath to collect the temperature and saving it in csv file. Also, we are using scheduler to run the code every hour to collect the data and save it in a csv file.

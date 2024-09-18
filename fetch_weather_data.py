@@ -27,18 +27,19 @@ def get_temperature_data():
             print("Temperature:", temperature)  # Remove extra spaces using .strip()
 
             # Define the data to save
-            data=[["Date","Temperature"]] #The first row is the header with column names
-            data.append([time.strftime("%Y-%m-%d"), temperature]) # Add the current date and temperature
+           # data=[["Date","Temperature"]] #The first row is the header with column names
+            #data.append([time.strftime("%Y-%m-%d"), temperature]) # Add the current date and temperature
 
             #Open a csv file to save the data
 
 
             #Save to the CSV file
             # "a" means we append data to the end of the file if it already exists
+            now=datetime. now()
 
             with open("weather_data.csv","a",newline="") as file:
                 writer = csv.writer(file) # create a writer object to write data into the file
-                writer.writerow(data) #write the data into the CSV file
+                writer.writerow([now.strftime("%Y-%m-%d %H:%M%:%S"), temperature]) #write the data into the CSV file
             
 
         else:
@@ -49,7 +50,7 @@ def get_temperature_data():
 
 # Schedule the task to run every day at a specific time (e.g 8:00 AM)
 
-schedule.every().day.at("10:21").do(get_temperature_data)
+schedule.every().hour.do(get_temperature_data)
 
 # Loop to keep the script running and checking the schedule
 

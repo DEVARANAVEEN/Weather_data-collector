@@ -3,12 +3,16 @@ from bs4 import BeautifulSoup  # Library to parse the HTML content
 import csv # Library to save the data into a CSV file
 import time # Library to get the current date and time
 import schedule # Library to schedule tasks
+from datetime import datetime
+import os # Library to check if the file exist
+from lxml import html
+
 
 #Function to get the weather data and save it to a CSV
 
 def get_temperature_data():
     # The URL of the weather page (you can change the URL for a specific city)
-    url = "https://www.timeanddate.com/weather/"
+    url = "https://www.timeanddate.com/weather/usa/cleveland"
 
     # Make a request to fetch the content of the page
     response = requests.get(url)
@@ -16,30 +20,43 @@ def get_temperature_data():
     # Check if the request was successful
     if response.status_code == 200:
         # Parse the page content using BeautifulSoup
+        tree=html.fromstring(response.content)
         soup = BeautifulSoup(response.text, 'html.parser')
-
-        # Find the temperature using the class "h2"
-        temperature_data = soup.find("span", class_="my-city__temp")
+        temperature_data = soup.find("div", class_="h2")
+        feels_like=tree.xpath("//p[2]/text()[1]")
 
         # If we find the temperature, print it
         if temperature_data:
             temperature=temperature_data.text.strip()
-            print("Temperature:", temperature)  # Remove extra spaces using .strip()
 
-            # Define the data to save
-           # data=[["Date","Temperature"]] #The first row is the header with column names
-            #data.append([time.strftime("%Y-%m-%d"), temperature]) # Add the current date and temperature
+            print("Temperature:", temperature)
+            print("Temperature:", temperature)
+            print("Feels Like:", feels_like[0] if feels_like else "N/A")
+            now = datetime.now()
 
-            #Open a csv file to save the data
+            #Define file path
+            filepath= 'C:/Users/navee/PycharmProjects/Weather_ETL/weather_data.csv'
 
+            #check if file exist
+            file_exists=os.path.isfile(filepath)
 
-            #Save to the CSV file
-            # "a" means we append data to the end of the file if it already exists
-            now=datetime. now()
+            #if the file exists
 
-            with open("weather_data.csv","a",newline="") as file:
+            with open(filepath,"a", newline="") as file:
                 writer = csv.writer(file) # create a writer object to write data into the file
-                writer.writerow([now.strftime("%Y-%m-%d %H:%M%:%S"), temperature]) #write the data into the CSV file
+
+                #check if the file is empty
+                file.seek(0,2)
+                if not file_exists or file.tell()==0:
+                    writer.writerow(["Date","Time","Temperature","Feels Like"])
+
+                writer.writerow([now.strftime("%Y-%m-%d"),
+                             now.strftime("%H:%M:%S"),
+                             temperature,
+                             feels_like[0] if feels_like else "N/A",
+                            ])
+            #write the data into the CSV file
+
             
 
         else:
@@ -48,11 +65,11 @@ def get_temperature_data():
         # If the connection to the website failed, print the error
         print("Failed to retrieve the webpage. Status code:", response.status_code)
 
-# Schedule the task to run every day at a specific time (e.g 8:00 AM)
+# Schedule the task to run every hour
 
 schedule.every().hour.do(get_temperature_data)
 
-# Loop to keep the script running and checking the schedule
+#Loop to keep the script running and checking the schedule
 
 while True:
     schedule.run_pending() #Run any scheduled tasks that are due
